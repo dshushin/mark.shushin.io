@@ -368,6 +368,11 @@
             <div class="search-results" id="searchResults"></div>
         </div>
         
+        <div class="welcome-box" style="background: linear-gradient(135deg, #4ECDC4, #44A08D); color: white; transform: rotate(0deg); margin-top: 30px;">
+            <h2 style="font-size: 2.5em; margin: 10px 0;">🌟 Welcome to the Fun Zone! 🌟</h2>
+            <p style="font-size: 1.3em; margin: 0;">Where every click is an adventure!</p>
+        </div>
+        
         <div class="robot">🤖</div>
         
         <div class="welcome-box">
@@ -385,8 +390,8 @@
         
         <h2>Choose Your Adventure!</h2>
         <div class="activity-grid">
-            <div class="activity-card" data-emoji="🎮">
-                Game Zone
+            <div class="activity-card" data-emoji="🎮" onclick="window.location.href='tetris.html'">
+                Tetris Game
             </div>
             <div class="activity-card" data-emoji="🎨">
                 Art Studio
@@ -415,8 +420,11 @@
         // Add some interactivity
         document.querySelectorAll('.activity-card').forEach(card => {
             card.addEventListener('click', function() {
-                const emoji = this.getAttribute('data-emoji');
-                alert(`${emoji} Coming soon! This will be super awesome!`);
+                // Skip the alert for Tetris game card since it has its own onclick
+                if (this.textContent.trim() !== 'Tetris Game') {
+                    const emoji = this.getAttribute('data-emoji');
+                    alert(`${emoji} Coming soon! This will be super awesome!`);
+                }
             });
         });
         
