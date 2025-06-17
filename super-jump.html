@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Jump Adventure</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom, #87CEEB 0%, #98D8E8 100%);
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        .game-container {
+            text-align: center;
+            position: relative;
+        }
+        
+        h1 {
+            font-size: 3em;
+            margin: 20px 0;
+            color: #FF6B6B;
+            text-shadow: 3px 3px 0 #FFD700, 6px 6px 0 rgba(0,0,0,0.2);
+            animation: bounce 2s ease-in-out infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        #game-canvas {
+            border: 5px solid #8B4513;
+            background: #87CEEB;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .game-info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.5em;
+            color: white;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .info-item {
+            background: rgba(0,0,0,0.3);
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
+        
+        .controls {
+            margin-top: 20px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #FF6B6B, #FFD700);
+            border: none;
+            color: white;
+            font-size: 1.2em;
+            font-weight: bold;
+            padding: 10px 30px;
+            margin: 0 10px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+        }
+        
+        .instructions {
+            margin-top: 20px;
+            background: rgba(255,255,255,0.9);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .instructions h3 {
+            color: #FF6B6B;
+            margin-bottom: 10px;
+        }
+        
+        .instructions p {
+            margin: 5px 0;
+            color: #333;
+        }
+        
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            text-decoration: none;
+            color: white;
+            font-size: 1.2em;
+            background: rgba(255,107,107,0.8);
+            padding: 10px 20px;
+            border-radius: 25px;
+            transition: all 0.3s;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        
+        .back-link:hover {
+            background: rgba(255,107,107,1);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4em;
+            color: #FF0000;
+            text-shadow: 3px 3px 0 #FFD700, 6px 6px 0 rgba(0,0,0,0.3);
+            display: none;
+            z-index: 20;
+        }
+        
+        .clouds {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 100px;
+            opacity: 0.8;
+        }
+        
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: white;
+            border-radius: 100px;
+        }
+        
+        .cloud1 {
+            width: 100px;
+            height: 40px;
+            top: 20%;
+            animation: float 20s infinite;
+        }
+        
+        .cloud1::before {
+            width: 50px;
+            height: 50px;
+            top: -25px;
+            left: 10px;
+        }
+        
+        .cloud1::after {
+            width: 60px;
+            height: 40px;
+            top: -15px;
+            right: 10px;
+        }
+        
+        .cloud2 {
+            width: 80px;
+            height: 35px;
+            top: 40%;
+            animation: float 25s infinite;
+            animation-delay: 5s;
+        }
+        
+        .cloud2::before {
+            width: 60px;
+            height: 45px;
+            top: -20px;
+            left: 15px;
+        }
+        
+        .cloud2::after {
+            width: 50px;
+            height: 35px;
+            top: -10px;
+            right: 15px;
+        }
+        
+        @keyframes float {
+            0% { left: -200px; }
+            100% { left: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="clouds">
+        <div class="cloud cloud1"></div>
+        <div class="cloud cloud2"></div>
+    </div>
+    
+    <a href="index.html" class="back-link">← Back to Home</a>
+    
+    <div class="game-container">
+        <h1>🌟 SUPER JUMP ADVENTURE 🌟</h1>
+        
+        <div style="position: relative;">
+            <canvas id="game-canvas" width="800" height="400"></canvas>
+            <div class="game-info">
+                <div class="info-item">Score: <span id="score">0</span></div>
+                <div class="info-item">Coins: <span id="coins">0</span></div>
+                <div class="info-item">Lives: <span id="lives">3</span></div>
+            </div>
+            <div class="game-over" id="gameOver">GAME OVER!</div>
+        </div>
+        
+        <div class="controls">
+            <button onclick="startGame()">Start Game</button>
+            <button onclick="resetGame()">Reset</button>
+        </div>
+        
+        <div class="instructions">
+            <h3>How to Play:</h3>
+            <p>⬅️➡️ Arrow Keys - Move left/right</p>
+            <p>⬆️ Up Arrow or Space - Jump</p>
+            <p>🪙 Collect coins for points!</p>
+            <p>🍄 Avoid enemies or jump on them!</p>
+            <p>🏁 Reach the flag to win!</p>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let gameActive = false;
+        let score = 0;
+        let coins = 0;
+        let lives = 3;
+        let camera = { x: 0, y: 0 };
+        
+        // Physics constants
+        const GRAVITY = 0.5;
+        const JUMP_POWER = -12;
+        const MOVE_SPEED = 5;
+        
+        // Player object
+        let player = {
+            x: 100,
+            y: 200,
+            width: 30,
+            height: 40,
+            vx: 0,
+            vy: 0,
+            grounded: false,
+            color: '#FF6B6B'
+        };
+        
+        // Level elements
+        let platforms = [];
+        let enemies = [];
+        let collectibles = [];
+        let particles = [];
+        let flagPosition = { x: 2400, y: 100 };
+        
+        // Input handling
+        let keys = {};
+        
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+            if (e.key === ' ' || e.key === 'ArrowUp') {
+                e.preventDefault();
+            }
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+        
+        // Game objects
+        class Platform {
+            constructor(x, y, width, height, type = 'normal') {
+                this.x = x;
+                this.y = y;
+                this.width = width;
+                this.height = height;
+                this.type = type;
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.translate(-camera.x, -camera.y);
+                
+                if (this.type === 'normal') {
+                    // Ground pattern
+                    ctx.fillStyle = '#8B4513';
+                    ctx.fillRect(this.x, this.y, this.width, this.height);
+                    
+                    // Grass on top
+                    ctx.fillStyle = '#228B22';
+                    ctx.fillRect(this.x, this.y, this.width, 10);
+                    
+                    // Dirt texture
+                    ctx.fillStyle = '#654321';
+                    for (let i = 0; i < this.width; i += 20) {
+                        for (let j = 10; j < this.height; j += 20) {
+                            if ((i + j) % 40 === 0) {
+                                ctx.fillRect(this.x + i, this.y + j, 15, 15);
+                            }
+                        }
+                    }
+                } else if (this.type === 'moving') {
+                    ctx.fillStyle = '#FFD700';
+                    ctx.fillRect(this.x, this.y, this.width, this.height);
+                    ctx.strokeStyle = '#FFA500';
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(this.x, this.y, this.width, this.height);
+                }
+                
+                ctx.restore();
+            }
+        }
+        
+        class Enemy {
+            constructor(x, y, type = 'goomba') {
+                this.x = x;
+                this.y = y;
+                this.width = 30;
+                this.height = 30;
+                this.type = type;
+                this.vx = -1;
+                this.vy = 0;
+                this.alive = true;
+            }
+            
+            update() {
+                if (!this.alive) return;
+                
+                // Simple patrol movement
+                this.x += this.vx;
+                this.vy += GRAVITY;
+                this.y += this.vy;
+                
+                // Check ground collision
+                platforms.forEach(platform => {
+                    if (this.vy > 0 &&
+                        this.x < platform.x + platform.width &&
+                        this.x + this.width > platform.x &&
+                        this.y + this.height > platform.y &&
+                        this.y + this.height < platform.y + platform.height) {
+                        this.y = platform.y - this.height;
+                        this.vy = 0;
+                    }
+                });
+                
+                // Reverse direction at edges
+                let onPlatform = false;
+                platforms.forEach(platform => {
+                    if (this.x >= platform.x && this.x + this.width <= platform.x + platform.width &&
+                        Math.abs((this.y + this.height) - platform.y) < 5) {
+                        onPlatform = true;
+                    }
+                });
+                
+                if (!onPlatform || this.x < 0 || this.x > 2500) {
+                    this.vx *= -1;
+                }
+            }
+            
+            draw() {
+                if (!this.alive) return;
+                
+                ctx.save();
+                ctx.translate(-camera.x, -camera.y);
+                
+                // Draw enemy (mushroom style)
+                ctx.fillStyle = '#8B4513';
+                ctx.fillRect(this.x + 5, this.y + 15, 20, 15);
+                
+                ctx.fillStyle = '#FF0000';
+                ctx.beginPath();
+                ctx.arc(this.x + 15, this.y + 15, 15, Math.PI, 0);
+                ctx.fill();
+                
+                // White dots
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(this.x + 8, this.y + 10, 3, 0, Math.PI * 2);
+                ctx.arc(this.x + 22, this.y + 10, 3, 0, Math.PI * 2);
+                ctx.arc(this.x + 15, this.y + 5, 3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Eyes
+                ctx.fillStyle = 'black';
+                ctx.fillRect(this.x + 8, this.y + 18, 3, 5);
+                ctx.fillRect(this.x + 19, this.y + 18, 3, 5);
+                
+                ctx.restore();
+            }
+        }
+        
+        class Coin {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.width = 20;
+                this.height = 20;
+                this.collected = false;
+                this.rotation = 0;
+            }
+            
+            update() {
+                if (!this.collected) {
+                    this.rotation += 0.1;
+                }
+            }
+            
+            draw() {
+                if (this.collected) return;
+                
+                ctx.save();
+                ctx.translate(-camera.x, -camera.y);
+                ctx.translate(this.x + 10, this.y + 10);
+                ctx.rotate(this.rotation);
+                
+                // Draw coin
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.arc(0, 0, 10, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.strokeStyle = '#FFA500';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Dollar sign
+                ctx.fillStyle = '#FFA500';
+                ctx.font = 'bold 12px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('$', 0, 0);
+                
+                ctx.restore();
+            }
+        }
+        
+        class Particle {
+            constructor(x, y, color, vx, vy) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.vx = vx;
+                this.vy = vy;
+                this.life = 30;
+            }
+            
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.2;
+                this.life--;
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.translate(-camera.x, -camera.y);
+                ctx.globalAlpha = this.life / 30;
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, 5, 5);
+                ctx.restore();
+            }
+        }
+        
+        function createParticles(x, y, color, count = 10) {
+            for (let i = 0; i < count; i++) {
+                const angle = (Math.PI * 2 * i) / count;
+                const speed = 3 + Math.random() * 2;
+                particles.push(new Particle(
+                    x, y, color,
+                    Math.cos(angle) * speed,
+                    Math.sin(angle) * speed - 2
+                ));
+            }
+        }
+        
+        function initLevel() {
+            platforms = [];
+            enemies = [];
+            collectibles = [];
+            particles = [];
+            
+            // Ground platforms
+            platforms.push(new Platform(0, 350, 400, 50));
+            platforms.push(new Platform(450, 350, 200, 50));
+            platforms.push(new Platform(700, 300, 150, 100));
+            platforms.push(new Platform(900, 350, 300, 50));
+            platforms.push(new Platform(1250, 320, 100, 80));
+            platforms.push(new Platform(1400, 280, 100, 120));
+            platforms.push(new Platform(1550, 350, 400, 50));
+            platforms.push(new Platform(2000, 300, 150, 100));
+            platforms.push(new Platform(2200, 250, 300, 150));
+            
+            // Floating platforms
+            platforms.push(new Platform(300, 250, 100, 20));
+            platforms.push(new Platform(500, 200, 80, 20));
+            platforms.push(new Platform(650, 150, 100, 20));
+            platforms.push(new Platform(1000, 200, 120, 20));
+            platforms.push(new Platform(1300, 150, 80, 20));
+            platforms.push(new Platform(1600, 200, 100, 20));
+            platforms.push(new Platform(1800, 150, 80, 20));
+            platforms.push(new Platform(2050, 180, 100, 20));
+            
+            // Moving platform
+            platforms.push(new Platform(800, 200, 80, 20, 'moving'));
+            
+            // Add enemies
+            enemies.push(new Enemy(300, 300));
+            enemies.push(new Enemy(600, 250));
+            enemies.push(new Enemy(1000, 300));
+            enemies.push(new Enemy(1300, 250));
+            enemies.push(new Enemy(1700, 300));
+            enemies.push(new Enemy(2100, 200));
+            
+            // Add coins
+            for (let i = 0; i < 5; i++) {
+                collectibles.push(new Coin(350 + i * 30, 200));
+            }
+            for (let i = 0; i < 3; i++) {
+                collectibles.push(new Coin(520 + i * 30, 150));
+            }
+            for (let i = 0; i < 4; i++) {
+                collectibles.push(new Coin(1020 + i * 30, 150));
+            }
+            for (let i = 0; i < 6; i++) {
+                collectibles.push(new Coin(1600 + i * 30, 150));
+            }
+            
+            // Coins above enemies
+            collectibles.push(new Coin(300, 250));
+            collectibles.push(new Coin(600, 200));
+            collectibles.push(new Coin(1000, 250));
+        }
+        
+        function drawPlayer() {
+            ctx.save();
+            ctx.translate(-camera.x, -camera.y);
+            
+            // Body
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x + 5, player.y + 15, 20, 20);
+            
+            // Head
+            ctx.fillStyle = '#FFD7BE';
+            ctx.fillRect(player.x + 8, player.y + 5, 14, 14);
+            
+            // Hat
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x + 5, player.y, 20, 8);
+            ctx.fillRect(player.x + 8, player.y - 3, 14, 5);
+            
+            // Eyes
+            ctx.fillStyle = 'black';
+            ctx.fillRect(player.x + 10, player.y + 8, 2, 3);
+            ctx.fillRect(player.x + 18, player.y + 8, 2, 3);
+            
+            // Feet
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(player.x + 6, player.y + 35, 8, 5);
+            ctx.fillRect(player.x + 16, player.y + 35, 8, 5);
+            
+            ctx.restore();
+        }
+        
+        function drawFlag() {
+            ctx.save();
+            ctx.translate(-camera.x, -camera.y);
+            
+            // Pole
+            ctx.fillStyle = '#FFD700';
+            ctx.fillRect(flagPosition.x, flagPosition.y, 5, 200);
+            
+            // Flag
+            ctx.fillStyle = '#00FF00';
+            ctx.beginPath();
+            ctx.moveTo(flagPosition.x + 5, flagPosition.y);
+            ctx.lineTo(flagPosition.x + 60, flagPosition.y + 20);
+            ctx.lineTo(flagPosition.x + 5, flagPosition.y + 40);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Star on flag
+            ctx.fillStyle = '#FFD700';
+            ctx.font = 'bold 20px Arial';
+            ctx.fillText('★', flagPosition.x + 20, flagPosition.y + 25);
+            
+            ctx.restore();
+        }
+        
+        function updatePlayer() {
+            // Horizontal movement
+            if (keys['ArrowLeft']) {
+                player.vx = -MOVE_SPEED;
+            } else if (keys['ArrowRight']) {
+                player.vx = MOVE_SPEED;
+            } else {
+                player.vx *= 0.8; // Friction
+            }
+            
+            // Jumping
+            if ((keys['ArrowUp'] || keys[' ']) && player.grounded) {
+                player.vy = JUMP_POWER;
+                player.grounded = false;
+                createParticles(player.x + 15, player.y + 40, '#8B4513', 5);
+            }
+            
+            // Apply physics
+            player.vy += GRAVITY;
+            player.x += player.vx;
+            player.y += player.vy;
+            
+            // Platform collision
+            player.grounded = false;
+            platforms.forEach(platform => {
+                // Top collision
+                if (player.vy > 0 &&
+                    player.x < platform.x + platform.width &&
+                    player.x + player.width > platform.x &&
+                    player.y + player.height > platform.y &&
+                    player.y < platform.y) {
+                    player.y = platform.y - player.height;
+                    player.vy = 0;
+                    player.grounded = true;
+                }
+                
+                // Bottom collision
+                if (player.vy < 0 &&
+                    player.x < platform.x + platform.width &&
+                    player.x + player.width > platform.x &&
+                    player.y < platform.y + platform.height &&
+                    player.y + player.height > platform.y + platform.height) {
+                    player.y = platform.y + platform.height;
+                    player.vy = 0;
+                }
+                
+                // Side collisions
+                if (player.x < platform.x + platform.width &&
+                    player.x + player.width > platform.x &&
+                    player.y < platform.y + platform.height &&
+                    player.y + player.height > platform.y) {
+                    if (player.vx > 0 && player.x < platform.x) {
+                        player.x = platform.x - player.width;
+                        player.vx = 0;
+                    } else if (player.vx < 0 && player.x > platform.x) {
+                        player.x = platform.x + platform.width;
+                        player.vx = 0;
+                    }
+                }
+            });
+            
+            // Fall detection
+            if (player.y > 500) {
+                playerDeath();
+            }
+            
+            // Camera follow
+            camera.x = player.x - canvas.width / 2;
+            camera.x = Math.max(0, Math.min(camera.x, 2500 - canvas.width));
+        }
+        
+        function checkCollisions() {
+            // Enemy collisions
+            enemies.forEach(enemy => {
+                if (!enemy.alive) return;
+                
+                if (player.x < enemy.x + enemy.width &&
+                    player.x + player.width > enemy.x &&
+                    player.y < enemy.y + enemy.height &&
+                    player.y + player.height > enemy.y) {
+                    
+                    // Check if player is jumping on enemy
+                    if (player.vy > 0 && player.y < enemy.y) {
+                        enemy.alive = false;
+                        player.vy = JUMP_POWER / 2;
+                        score += 100;
+                        createParticles(enemy.x + 15, enemy.y + 15, '#FF0000', 15);
+                    } else {
+                        playerDeath();
+                    }
+                }
+            });
+            
+            // Coin collection
+            collectibles.forEach(coin => {
+                if (!coin.collected &&
+                    player.x < coin.x + coin.width &&
+                    player.x + player.width > coin.x &&
+                    player.y < coin.y + coin.height &&
+                    player.y + player.height > coin.y) {
+                    
+                    coin.collected = true;
+                    coins++;
+                    score += 50;
+                    createParticles(coin.x + 10, coin.y + 10, '#FFD700', 10);
+                    updateUI();
+                }
+            });
+            
+            // Flag collision (win condition)
+            if (player.x + player.width > flagPosition.x &&
+                player.x < flagPosition.x + 60 &&
+                player.y < flagPosition.y + 200) {
+                winGame();
+            }
+        }
+        
+        function playerDeath() {
+            lives--;
+            updateUI();
+            createParticles(player.x + 15, player.y + 20, player.color, 20);
+            
+            if (lives <= 0) {
+                gameOver();
+            } else {
+                // Reset player position
+                player.x = 100;
+                player.y = 200;
+                player.vx = 0;
+                player.vy = 0;
+            }
+        }
+        
+        function update() {
+            if (!gameActive) return;
+            
+            updatePlayer();
+            
+            // Update moving platform
+            platforms.forEach(platform => {
+                if (platform.type === 'moving') {
+                    platform.x += Math.sin(Date.now() * 0.001) * 2;
+                }
+            });
+            
+            // Update enemies
+            enemies.forEach(enemy => enemy.update());
+            
+            // Update coins
+            collectibles.forEach(coin => coin.update());
+            
+            // Update particles
+            particles = particles.filter(particle => {
+                particle.update();
+                return particle.life > 0;
+            });
+            
+            checkCollisions();
+        }
+        
+        function draw() {
+            // Sky gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#87CEEB');
+            gradient.addColorStop(1, '#98D8E8');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw background hills
+            ctx.save();
+            ctx.translate(-camera.x * 0.5, -camera.y * 0.5);
+            ctx.fillStyle = '#90EE90';
+            ctx.beginPath();
+            ctx.moveTo(0, 300);
+            ctx.quadraticCurveTo(200, 200, 400, 300);
+            ctx.quadraticCurveTo(600, 250, 800, 300);
+            ctx.quadraticCurveTo(1000, 220, 1200, 300);
+            ctx.lineTo(1200, 400);
+            ctx.lineTo(0, 400);
+            ctx.fill();
+            ctx.restore();
+            
+            // Draw game elements
+            platforms.forEach(platform => platform.draw());
+            collectibles.forEach(coin => coin.draw());
+            enemies.forEach(enemy => enemy.draw());
+            particles.forEach(particle => particle.draw());
+            
+            drawPlayer();
+            drawFlag();
+        }
+        
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        function updateUI() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('coins').textContent = coins;
+            document.getElementById('lives').textContent = lives;
+        }
+        
+        function startGame() {
+            gameActive = true;
+            score = 0;
+            coins = 0;
+            lives = 3;
+            player.x = 100;
+            player.y = 200;
+            player.vx = 0;
+            player.vy = 0;
+            camera.x = 0;
+            
+            initLevel();
+            updateUI();
+            document.getElementById('gameOver').style.display = 'none';
+        }
+        
+        function resetGame() {
+            gameActive = false;
+            score = 0;
+            coins = 0;
+            lives = 3;
+            player.x = 100;
+            player.y = 200;
+            player.vx = 0;
+            player.vy = 0;
+            camera.x = 0;
+            particles = [];
+            
+            updateUI();
+            document.getElementById('gameOver').style.display = 'none';
+        }
+        
+        function gameOver() {
+            gameActive = false;
+            document.getElementById('gameOver').style.display = 'block';
+            document.getElementById('gameOver').textContent = 'GAME OVER!';
+        }
+        
+        function winGame() {
+            gameActive = false;
+            score += 1000;
+            updateUI();
+            document.getElementById('gameOver').style.display = 'block';
+            document.getElementById('gameOver').textContent = '🎉 YOU WIN! 🎉';
+            document.getElementById('gameOver').style.color = '#00FF00';
+        }
+        
+        // Initialize and start game loop
+        initLevel();
+        gameLoop();
+    </script>
+</body>
+</html>

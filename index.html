@@ -393,11 +393,11 @@
             <div class="activity-card" data-emoji="🎮" onclick="window.location.href='tetris.html'">
                 Tetris Game
             </div>
-            <div class="activity-card" data-emoji="🎨">
-                Art Studio
+            <div class="activity-card" data-emoji="🚀" onclick="window.location.href='space-shooter.html'">
+                Space Shooter
             </div>
-            <div class="activity-card" data-emoji="📚">
-                Story Time
+            <div class="activity-card" data-emoji="🏃" onclick="window.location.href='super-jump.html'">
+                Super Jump
             </div>
             <div class="activity-card" data-emoji="🧪">
                 Science Lab
@@ -417,15 +417,15 @@
     </div>
     
     <script>
-        // Add some interactivity
+        // Add some interactivity for cards without onclick
         document.querySelectorAll('.activity-card').forEach(card => {
-            card.addEventListener('click', function() {
-                // Skip the alert for Tetris game card since it has its own onclick
-                if (this.textContent.trim() !== 'Tetris Game') {
+            // Only add click handler if the card doesn't have an onclick attribute
+            if (!card.hasAttribute('onclick')) {
+                card.addEventListener('click', function() {
                     const emoji = this.getAttribute('data-emoji');
                     alert(`${emoji} Coming soon! This will be super awesome!`);
-                }
-            });
+                });
+            }
         });
         
         // Random color change for the robot
