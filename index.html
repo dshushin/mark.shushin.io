@@ -182,6 +182,142 @@
                 opacity: 0;
             }
         }
+        
+        .search-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 25px;
+            margin: 30px auto;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .search-section::before {
+            content: "🔍";
+            position: absolute;
+            font-size: 80px;
+            opacity: 0.1;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%) rotate(15deg);
+        }
+        
+        .search-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 15px 20px;
+            font-size: 1.2em;
+            border: 3px solid #4ECDC4;
+            border-radius: 50px;
+            outline: none;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            border-color: #FF6B6B;
+            box-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
+            transform: scale(1.02);
+        }
+        
+        .search-button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #FF6B6B, #FFE66D);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .search-button:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .search-button:active {
+            transform: translateY(0);
+        }
+        
+        .search-tips {
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #666;
+            text-align: center;
+        }
+        
+        .search-results {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f0f0f0;
+            border-radius: 15px;
+            display: none;
+        }
+        
+        .user-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+        
+        .cube-3d {
+            width: 60px;
+            height: 60px;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: rotateCube 8s infinite linear;
+        }
+        
+        @keyframes rotateCube {
+            0% { transform: rotateX(-20deg) rotateY(0deg); }
+            100% { transform: rotateX(-20deg) rotateY(360deg); }
+        }
+        
+        .cube-face {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #4ECDC4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: #FF6B6B;
+            text-shadow: 1px 1px 0px #FFE66D;
+        }
+        
+        .cube-face.front { transform: translateZ(30px); }
+        .cube-face.back { transform: rotateY(180deg) translateZ(30px); }
+        .cube-face.right { transform: rotateY(90deg) translateZ(30px); }
+        .cube-face.left { transform: rotateY(-90deg) translateZ(30px); }
+        .cube-face.top { transform: rotateX(90deg) translateZ(30px); }
+        .cube-face.bottom { transform: rotateX(-90deg) translateZ(30px); }
     </style>
 </head>
 <body>
@@ -194,8 +330,30 @@
     <div class="floating-emoji" style="left: 70%; animation-delay: 6s;">🌈</div>
     <div class="floating-emoji" style="left: 90%; animation-delay: 8s;">🦄</div>
     
+    <!-- User Avatar -->
+    <div class="user-avatar">
+        <div class="cube-3d">
+            <div class="cube-face front">M</div>
+            <div class="cube-face back">M</div>
+            <div class="cube-face right">M</div>
+            <div class="cube-face left">M</div>
+            <div class="cube-face top">M</div>
+            <div class="cube-face bottom">M</div>
+        </div>
+    </div>
+    
     <div class="container">
         <h1>Welcome to Mark's Universe!</h1>
+        
+        <div class="search-section">
+            <h3 style="color: #FF6B6B; margin-top: 0;">🔎 Search for Adventures!</h3>
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="What would you like to find?">
+                <button class="search-button">Search! 🚀</button>
+            </div>
+            <p class="search-tips">Try searching for: games, jokes, science, or art!</p>
+            <div class="search-results" id="searchResults"></div>
+        </div>
         
         <div class="robot">🤖</div>
         
@@ -256,6 +414,69 @@
             const randomColor = colors[Math.floor(Math.random() * colors.length)];
             robot.style.color = randomColor;
         }, 2000);
+        
+        // Search functionality
+        const searchInput = document.querySelector('.search-input');
+        const searchButton = document.querySelector('.search-button');
+        const searchResults = document.getElementById('searchResults');
+        
+        const searchData = {
+            games: ['🎮 Super Space Adventure', '🏎️ Racing Champions', '🧩 Puzzle Paradise', '🎯 Target Master'],
+            jokes: ['🤡 Funny Knock-Knock Jokes', '😂 Silly Riddles', '🦁 Animal Jokes', '🍕 Food Puns'],
+            science: ['🔬 Cool Chemistry Experiments', '🌌 Space Exploration', '🦖 Dinosaur Facts', '⚡ Electricity Magic'],
+            art: ['🎨 Paint Like Picasso', '✏️ Drawing Tutorials', '🎭 Creative Crafts', '📸 Photo Fun'],
+            all: ['🎮 Games', '😂 Jokes', '🔬 Science Experiments', '🎨 Art Projects', '📚 Stories', '🎵 Music']
+        };
+        
+        function performSearch() {
+            const query = searchInput.value.toLowerCase().trim();
+            
+            if (!query) {
+                searchResults.style.display = 'none';
+                return;
+            }
+            
+            let results = [];
+            
+            // Search through all categories
+            for (const [category, items] of Object.entries(searchData)) {
+                if (category.includes(query) || query === 'all' || query === 'everything') {
+                    results = results.concat(items);
+                } else {
+                    // Check if any item matches the query
+                    const matchingItems = items.filter(item => 
+                        item.toLowerCase().includes(query)
+                    );
+                    results = results.concat(matchingItems);
+                }
+            }
+            
+            // Remove duplicates
+            results = [...new Set(results)];
+            
+            if (results.length > 0) {
+                searchResults.innerHTML = `
+                    <h4 style="color: #4ECDC4; margin-top: 0;">🎉 Found ${results.length} awesome things!</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        ${results.map(item => `<li style="padding: 8px 0; font-size: 1.1em;">${item}</li>`).join('')}
+                    </ul>
+                `;
+                searchResults.style.display = 'block';
+            } else {
+                searchResults.innerHTML = `
+                    <p style="color: #FF6B6B;">🔍 No results found for "${query}"</p>
+                    <p>Try searching for: games, jokes, science, or art!</p>
+                `;
+                searchResults.style.display = 'block';
+            }
+        }
+        
+        searchButton.addEventListener('click', performSearch);
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
     </script>
 </body>
 </html>
