@@ -46,7 +46,7 @@
             color: #FFD700;
             font-size: 3.5em;
             margin: 20px 0;
-            text-shadow: 3px 3px 0px #FF6B6B;
+            text-shadow: 3px 3px 0 #FF6B6B;
             animation: bounce 2s ease-in-out infinite;
         }
         
@@ -309,7 +309,7 @@
             font-size: 32px;
             font-weight: bold;
             color: #FF6B6B;
-            text-shadow: 1px 1px 0px #FFE66D;
+            text-shadow: 1px 1px 0 #FFE66D;
         }
         
         .cube-face.front { transform: translateZ(30px); }
@@ -318,6 +318,18 @@
         .cube-face.left { transform: rotateY(-90deg) translateZ(30px); }
         .cube-face.top { transform: rotateX(90deg) translateZ(30px); }
         .cube-face.bottom { transform: rotateX(-90deg) translateZ(30px); }
+        
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            white-space: nowrap;
+            border: 0;
+        }
     </style>
 </head>
 <body>
@@ -348,7 +360,8 @@
         <div class="search-section">
             <h3 style="color: #FF6B6B; margin-top: 0;">🔎 Search for Adventures!</h3>
             <div class="search-container">
-                <input type="text" class="search-input" placeholder="What would you like to find?">
+                <label for="search-input" class="visually-hidden">Search for adventures</label>
+                <input type="text" id="search-input" class="search-input" placeholder="What would you like to find?">
                 <button class="search-button">Search! 🚀</button>
             </div>
             <p class="search-tips">Try searching for: games, jokes, science, or art!</p>
@@ -411,12 +424,11 @@
         const robot = document.querySelector('.robot');
         setInterval(() => {
             const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#667eea'];
-            const randomColor = colors[Math.floor(Math.random() * colors.length)];
-            robot.style.color = randomColor;
+            robot.style.color = colors[Math.floor(Math.random() * colors.length)];
         }, 2000);
         
         // Search functionality
-        const searchInput = document.querySelector('.search-input');
+        const searchInput = document.getElementById('search-input');
         const searchButton = document.querySelector('.search-button');
         const searchResults = document.getElementById('searchResults');
         
